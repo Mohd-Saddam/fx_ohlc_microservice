@@ -1,0 +1,65 @@
+services:
+  db:
+    image: timescale/timescaledb:latest-pg15
+    container_name: fx_timescaledb
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: fxohlc
+    ports:
+      - "5432:5432"
+    volumes:
+      - timescale_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - fx_network
+
+  redis:
+    image: redis:7-alpine
+    container_name: fx_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - fx_network
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fx_api
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: fxohlc
+      REDIS_URL: redis://redis:6379
+      LOG_LEVEL: INFO
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - fx_network
+    restart: unless-stopped
+
+volumes:
+  timescale_data:
+  redis_data:
+
+networks:
+  fx_network:
+    driver: bridge

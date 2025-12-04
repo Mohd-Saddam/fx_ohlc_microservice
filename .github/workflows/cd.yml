@@ -1,0 +1,20 @@
+name: CD
+
+on:
+  push:
+    branches: [ main ]
+  release:
+    types: [ published ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Deploy to production
+      run: |
+        echo "Deploy logic here"
+        # Add your deployment steps here
+        # e.g., deploy to cloud provider, update kubernetes, etc.
