@@ -466,10 +466,12 @@ The microservice includes a built-in WebSocket demo page.
 
 ```
 http://localhost:8000/ws-test
-check also websocket image 👇🏻
-<img width="1374" height="833" alt="websocket-demo" src="https://github.com/user-attachments/assets/64ad4650-f557-48cd-b068-aff8f78c50ab" />
 
 ```
+check also websocket image 👇🏻
+
+<img width="1374" height="833" alt="websocket-demo" src="https://github.com/user-attachments/assets/64ad4650-f557-48cd-b068-aff8f78c50ab" />
+
 
 ### Demo Features
 
