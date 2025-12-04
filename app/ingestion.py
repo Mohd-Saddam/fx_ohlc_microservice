@@ -8,9 +8,16 @@ import asyncio
 import json
 import logging
 import random
+import time
 from datetime import datetime, timezone
 from redis import asyncio as aioredis
 from app.config import settings
+from app.metrics import (
+    ticks_ingested_total,
+    redis_messages_published,
+    background_task_duration,
+    background_task_errors
+)
 
 logger = logging.getLogger(__name__)
 
@@ -69,14 +76,24 @@ class TickGenerator:
     
     async def _publish_tick(self, tick: dict):
         """Publish tick to Redis channel."""
+        start_time = time.time()
         try:
             await self.redis_client.publish(
                 settings. TICK_CHANNEL,
                 json.dumps(tick)
             )
+            
+            # Update metrics
+            ticks_ingested_total.labels(symbol=tick['symbol']).inc()
+            redis_messages_published.labels(channel=settings.TICK_CHANNEL).inc()
+            
             logger.debug(f"Published tick: {tick}")
         except Exception as e:
             logger. error(f"Error publishing tick: {e}")
+            background_task_errors.labels(task_name='tick_publisher').inc()
+        finally:
+            duration = time.time() - start_time
+            background_task_duration.labels(task_name='tick_publisher').observe(duration)
     
     async def disconnect(self):
         """Disconnect from Redis."""

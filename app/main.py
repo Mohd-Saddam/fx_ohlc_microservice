@@ -7,6 +7,7 @@ Main application providing:
 - Automatic OHLC aggregation using TimescaleDB continuous aggregates
 - WebSocket streaming for live data feeds
 - Production-ready health checks and monitoring
+- Prometheus metrics for observability
 """
 import asyncio
 import logging
@@ -15,6 +16,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from datetime import datetime, timezone
+from prometheus_client import make_asgi_app
+from prometheus_fastapi_instrumentator import Instrumentator
 from app.config import settings
 from app.database import init_db, close_db
 from app.timescale_setup import setup_timescaledb, setup_custom_day_aggregate
@@ -119,6 +122,13 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Prometheus instrumentation
+Instrumentator().instrument(app).expose(app)
+
+# Mount Prometheus metrics endpoint
+metrics_app = make_asgi_app()
+app.mount("/metrics", metrics_app)
 
 # Include routers - CQRS Implementation
 # =====================================

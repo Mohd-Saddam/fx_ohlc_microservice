@@ -20,6 +20,9 @@ A high-performance, event-driven FastAPI microservice for real-time FX OHLC data
 - [Database Setup](#database-setup)
 - [Configuration](#configuration)
 - [Running the Application](#running-the-application)
+- [Monitoring](#monitoring)
+  - [Prometheus & Grafana](#prometheus--grafana)
+  - [Available Metrics](#available-metrics)
 - [Testing](#testing)
   - [Running Tests](#running-tests)
   - [Test Coverage](#test-coverage)
@@ -304,6 +307,59 @@ source venv/bin/activate
 # Run with hot reload
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
+
+## Monitoring
+
+The microservice includes a complete monitoring stack with Prometheus and Grafana.
+
+### Prometheus & Grafana
+
+All monitoring services start automatically with Docker Compose:
+
+```bash
+# Start all services (includes monitoring)
+docker-compose up -d
+```
+
+**Access URLs**:
+- **Grafana Dashboard**: http://localhost:3000 (admin/admin)
+- **Prometheus UI**: http://localhost:9090
+- **API Metrics**: http://localhost:8000/metrics
+
+**Pre-configured Dashboard** includes:
+- Request rate and latency (P95)
+- Tick ingestion rate
+- Database and Redis connections
+- WebSocket connections
+- Error rates
+
+### Available Metrics
+
+**Application Metrics**:
+```promql
+# Tick ingestion rate
+rate(ticks_ingested_total[1m])
+
+# OHLC query latency (P95)
+histogram_quantile(0.95, rate(ohlc_query_duration_seconds_bucket[5m]))
+
+# Active WebSocket connections
+websocket_connections_active
+```
+
+**Infrastructure Metrics**:
+```promql
+# Database connections
+pg_stat_database_numbackends{datname="fxohlc"}
+
+# Redis clients
+redis_connected_clients
+
+# Request latency
+histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))
+```
+
+For complete monitoring documentation, see [docs/MONITORING.md](docs/MONITORING.md) and [MONITORING_QUICKSTART.md](MONITORING_QUICKSTART.md).
 
 ## Testing
 
