@@ -743,6 +743,23 @@ For questions and issues:
 - **API Docs**: http://localhost:8000/docs
 
 ---
+#### 1. Grafana Dashboard (Recommended for visualization)
+
+URL: http://localhost:3000
+Login: admin / admin
+Pre-configured Dashboard: Navigate to Dashboards → FX OHLC Microservice Dashboard
+<img width="1418" height="833" alt="Screenshot 2025-12-05 at 3 34 10 AM" src="https://github.com/user-attachments/assets/29df1a3d-7b74-4128-a3ef-865049510c81" />
+
+2. Prometheus UI (For querying metrics)
+
+URL: http://localhost:9090
+Check targets: http://localhost:9090/targets (all 4 targets are UP ✅)
+<img width="1418" height="833" alt="Screenshot 2025-12-05 at 3 34 47 AM" src="https://github.com/user-attachments/assets/cb80f750-ce27-4c4f-80a0-55eec83ed3fc" />
+
+3. Raw Metrics Endpoint
+
+URL: http://localhost:8000/metrics
+Custom metrics working: ticks_ingested_total{symbol="EURUSD"} 110.0 🎉
 
 **License**: MIT License
 
